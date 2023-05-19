@@ -1,1 +1,227 @@
-Nice
+import random
+
+class Board:
+    def __init__(self):
+        self.board = [[" " for _ in range(6)] for _ in range(6)]
+
+    def display(self):
+        print("   A B C D E F")
+        print("  ------------")
+        for i in range(6):
+            print(i + 1, "|", " ".join(self.board[i]))
+        print("  ------------")
+
+    def place_ship(self, ship):
+        for row, col in ship.coordinates:
+            self.board[row][col] = "S"
+
+import random
+
+# Класс, представляющий корабль
+class Ship:
+    def __init__(self, size):
+        self.size = size
+        self.hits = 0
+
+    def is_sunk(self):
+        return self.hits == self.size
+
+# Класс, представляющий игровую доску
+class Board:
+    def __init__(self):
+        self.board = [[" " for _ in range(6)] for _ in range(6)]
+        self.ships = [Ship(3), Ship(2), Ship(2), Ship(1), Ship(1), Ship(1), Ship(1)]
+
+    def place_ship(self, ship):
+        while True:
+            row = random.randint(0, 5)
+            col = random.randint(0, 5)
+            direction = random.choice(["horizontal", "vertical"])
+
+            if self.is_valid_placement(ship, row, col, direction):
+                self.add_ship(ship, row, col, direction)
+                break
+
+    def is_valid_placement(self, ship, row, col, direction):
+        if direction == "horizontal":
+            for c in range(col, col + ship.size):
+                if c > 5 or self.board[row][c] != " ":
+                    return False
+        else:
+            for r in range(row, row + ship.size):
+                if r > 5 or self.board[r][col] != " ":
+                    return False
+
+        return True
+
+    def add_ship(self, ship, row, col, direction):
+        if direction == "horizontal":
+            for c in range(col, col + ship.size):
+                self.board[row][c] = "X"
+        else:
+            for r in range(row, row + ship.size):
+                self.board[r][col] = "X"
+
+    def is_game_over(self):
+        return all(ship.is_sunk() for ship in self.ships)
+
+    def print_board(self):
+        print("  1 2 3 4 5 6")
+        for i, row in enumerate(self.board):
+            print(chr(ord('A') + i) + " " + " ".join(row))
+
+# Функция для ввода координат выстрела от игрока
+def get_player_shot():
+    while True:
+        shot = input("Player X: Enter row number (1-6): ")
+        if len(shot) != 2 or not shot[0].isalpha() or not shot[1].isdigit():
+            print("Invalid input. Please enter a letter (A-F) followed by a number (1-6).")
+            continue
+
+        row = ord(shot[0].upper()) - ord('A')
+        col = int(shot[1]) - 1
+
+        if row < 0 or row > 5 or col < 0 or col > 5:
+            print("Invalid input. Please enter a letter (A-F) followed by a number (1-6).")
+            continue
+
+        return row, col
+
+# Функция для генерации случайного выстрела от компьютера
+def get_computer_shot():
+    row = random.randint(0, 5)
+    col = random.randint(0, 5)
+    return row, col
+
+# Функция для обработки выстрела
+def process_shot(board, row, col):
+    if board[row][col] == "X" or board[row][col] == "T":
+        raise Exception("You have already shot at this position.")
+
+    if board[row][col] == " ":
+        board[row][col] = "T"
+        print("Player X: Miss!")
+    else:
+        board[row][col] = "X"
+        print("Player X: Hit!")
+
+# Основной код игры
+def play_game():
+    player_board = Board()
+    computer_board = Board()
+
+    # Размещаем корабли на игровых досках
+    for ship in player_board.ships:
+        player_board.place_ship(ship)
+
+    for ship in computer_board.ships:
+        computer_board.place_ship(ship)
+
+    while True:
+        # Ход игрока
+        player_board.print_board()
+        print("Player X: Your Turn")
+        row, col = get_player_shot()
+        process_shot(computer_board.board, row, col)
+
+        if computer_board.is_game_over():
+            print("Player X wins!")
+            break
+
+        # Ход компьютера
+        print("Player O: Computer's Turn")
+        row, col = get_computer_shot()
+        process_shot(player_board.board, row, col)
+
+        if player_board.is_game_over():
+            print("Player O wins!")
+            break
+
+# Запуск игры
+play_game()
+
+
+# Класс Board для представления игровой доски
+class Board:
+    def __init__(self):
+        self.board = [[" " for _ in range(6)] for _ in range(6)]
+        self.ships = [Ship(3), Ship(2), Ship(2), Ship(1), Ship(1), Ship(1), Ship(1)]
+
+    # Функция для вывода игровой доски на экран
+    def print_board(self):
+        print("  1 2 3 4 5 6")
+        print(" +-+-+-+-+-+")
+        for i, row in enumerate(self.board):
+            print(chr(ord('A') + i) + "|" + "|".join(row) + "|")
+            print(" +-+-+-+-+-+")
+
+    # Функция для размещения корабля на игровой доске
+    def place_ship(self, ship):
+        while True:
+            row = random.randint(0, 5)
+            col = random.randint(0, 5)
+            direction = random.choice(["horizontal", "vertical"])
+            if self.is_valid_placement(ship, row, col, direction):
+                self.add_ship(ship, row, col, direction)
+                break
+
+    # Функция для проверки возможности размещения корабля на заданных координатах
+    def is_valid_placement(self, ship, row, col, direction):
+        if direction == "horizontal":
+            for i in range(ship.size):
+                if col + i >= 6 or self.board[row][col + i] != " ":
+                    return False
+        elif direction == "vertical":
+            for i in range(ship.size):
+                if row + i >= 6 or self.board[row + i][col] != " ":
+                    return False
+        return True
+
+    # Функция для добавления корабля на игровую доску
+    def add_ship(self, ship, row, col, direction):
+        if direction == "horizontal":
+            for i in range(ship.size):
+                self.board[row][col + i] = ship.symbol
+        elif direction == "vertical":
+            for i in range(ship.size):
+                self.board[row + i][col] = ship.symbol
+
+    # Функция для проверки окончания игры
+    def is_game_over(self):
+        for row in self.board:
+            if "O" in row:
+                return False
+        return True
+
+# Класс Ship для представления корабля
+class Ship:
+    def __init__(self, size):
+        self.size = size
+        self.symbol = "O" * size
+
+# Основной код игры
+def play_game():
+    player_board = Board()
+    computer_board = Board()
+
+    # Размещаем корабли на игровых досках
+    for ship in player_board.ships:
+        player_board.place_ship(ship)
+
+    for ship in computer_board.ships:
+        computer_board.place_ship(ship)
+
+    while True:
+        # Ход игрока
+        player_board.print_board()
+        print("Player X: Your Turn")
+        row, col = get_player_shot()
+        process_shot(computer_board.board, row, col)
+
+        if computer_board.is_game_over():
+            print("Player X wins!")
+            break
+
+        # Ход компьютера
+        print("Player O: Computer's Turn")
+        row, col = get_computer_shot
